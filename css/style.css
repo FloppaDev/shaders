@@ -1,0 +1,29 @@
+* {
+  box-sizing:border-box;
+  transition: all .33s ease-in-out;
+}
+
+body {
+  margin: 0;
+}
+
+canvas {
+  display: block;
+}
+
+#menu {
+  position: absolute;
+  margin: 1em;
+  padding: 1em;
+  background: rgba(0,0,0,.7);
+  color: white;
+}
+
+#buttons {
+  display: flex;
+  flex-direction: column;
+}
+
+.hidden {
+  opacity: 0;
+}
