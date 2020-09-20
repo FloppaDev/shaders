@@ -43,7 +43,8 @@ import * as THREE from 'https://unpkg.com/three@0.120.1/build/three.module.js';
 
   let material = new THREE.RawShaderMaterial({
     uniforms: {
-      resolution: { type: 'vec2' }
+      resolution: { type: 'vec2' },
+      time: {value: 0},
     },
     vertexShader: `${vertInc}\n${vert}`,
     fragmentShader: `${fragInc}\n${frag}`
@@ -63,6 +64,8 @@ import * as THREE from 'https://unpkg.com/three@0.120.1/build/three.module.js';
 
   window.onresize();
 
+  let clock = new THREE.Clock();
+
   const render = async () => {
     queryString = window.location.search;
     urlParams = new URLSearchParams(queryString);
@@ -78,9 +81,11 @@ import * as THREE from 'https://unpkg.com/three@0.120.1/build/three.module.js';
       material.vertexShader = `${vertInc}\n${vert}`;
       material.fragmentShader = `${fragInc}\n${frag}`;
 
-      material.needsUpdate = true;
     }
 
+    material.uniforms.time.value = clock.getElapsedTime();
+
+    material.needsUpdate = true;
     requestAnimationFrame(render);
     renderer.render(scene, camera);
   };
