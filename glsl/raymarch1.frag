@@ -8,6 +8,11 @@
 #define AMBIENT_INTENSITY .4
 #define BACKGROUND vec3(.5, .7, 1.)
 #define SPECULAR 1.
+#define STRETCH_COLOR vec3(.8, 1., 0.)
+#define STRETCH_INTENSITY .8
+#define STRETCH_RADIUS .9
+
+#define SUPERSAMPLING 8.
 
 uniform vec2 resolution;
 uniform float time;
@@ -18,7 +23,9 @@ float sdSphere(vec3 p, vec3 c, float r) {
 }
 
 float sdf(vec3 p) {
-	float sphere = sdSphere(p, vec3(0.), 1.);
+	float height = sin(time * 3.) * .1;
+	float radius = sin(time * 2.) * .05 + 1.;
+	float sphere = sdSphere(p, vec3(0., height, 0.), radius);
 
 	float freq = 10.;
 	vec3 d = freq * p + time * 5.;
@@ -57,7 +64,9 @@ vec3 raymarch(vec3 origin, vec3 direction) {
 			float spec = pow(max(dot(viewDir, reflectDir), 0.), 6.);
 			vec3 specular = SPECULAR * spec * LIGHT_COLOR;
 
-			return (light + AMBIENT_INTENSITY * BACKGROUND) * COLOR + specular;
+			vec3 stretch = max(length(pos) - STRETCH_RADIUS, 0.) * STRETCH_COLOR * STRETCH_INTENSITY;
+
+			return (light + AMBIENT_INTENSITY * BACKGROUND) * COLOR + specular + stretch;
 		}
 
 		if(depth > FAR) break;
@@ -70,10 +79,22 @@ vec3 raymarch(vec3 origin, vec3 direction) {
 
 void main(){
 	vec3 origin = vec3(0.,0.,-5.);
-	vec2 rUv = uv * vec2(1.0, resolution.y / resolution.x);
-	vec3 direction = vec3(rUv, 1.0);
 
-	vec3 color = raymarch(origin, direction);
+	float ssSqrt = sqrt(SUPERSAMPLING);
+	float ss = 2. / resolution.x / ssSqrt;
+	vec2 rUv = uv * vec2(1.0, resolution.y / resolution.x);
+
+	vec3 color = vec3(0.);
+	float ssExtent = ssSqrt * .5;
+
+	for(float i=-ssExtent; i<ssExtent; i+=1.)
+	for(float j=-ssExtent; j<ssExtent; j+=1.) {
+		vec2 ssUv = rUv + vec2(i*ss, j*ss);
+		vec3 direction = vec3(ssUv, 1.0);
+		color += raymarch(origin, direction);
+	}
+
+	color /= SUPERSAMPLING;
 
 	gl_FragColor = vec4(color, 1.);
 }

@@ -84,6 +84,7 @@ import * as THREE from 'https://unpkg.com/three@0.120.1/build/three.module.js';
     }
 
     material.uniforms.time.value = clock.getElapsedTime();
+    // material.uniforms.time.value = 0;
 
     material.needsUpdate = true;
     requestAnimationFrame(render);
