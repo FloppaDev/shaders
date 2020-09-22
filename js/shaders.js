@@ -33,6 +33,11 @@ Shaders = {
   raymarch1: {
     vert: "default",
     frag: "raymarch1"
+  },
+
+  raymarch2: {
+    vert: "default",
+    frag: "raymarch2"
   }
 
 };
