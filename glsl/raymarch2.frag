@@ -1,36 +1,27 @@
-#define STEPS 64
+#define STEPS 50
 #define EPSILON .01
 #define FAR 50.
 
 #define BACKGROUND vec3(.1, .2, .4)
-#define SUPERSAMPLING 8.
+#define SUPERSAMPLING 4.
 
 uniform vec2 resolution;
 uniform float time;
 in vec2 uv;
 
-float sdSphere(vec3 p, vec3 c, float r) {
-	float x = fract(p.z / FAR);
-	vec3 q = mod(p + vec3(sin(x * 10.), cos(x * 10.), 0.), 2.) - 1.;
-	return length(q-c) - (r * max(x, .5));
+float sdSphere(vec3 p, vec3 c, float r, float x) {
+	return length(p-c) - (r * max(x, .5));
 }
 
 float sdf(vec3 p) {
 	vec3 center = vec3(0.);
 	float radius = .4;
-	float sphere = sdSphere(p, center, radius);
+
+	float x = fract(p.z / FAR);
+	vec3 q = mod(p + vec3(sin(x * 10.), cos(x * 10.), 0.), 2.) - 1.;
+	float sphere = sdSphere(q, center, radius, x);
 
 	return sphere;
-}
-
-vec3 normal(vec3 p) {
-	const vec3 step3 = vec3(EPSILON, 0., 0.);
-
-	float gradientX = sdf(p + step3.xyy) - sdf(p - step3.xyy);
-	float gradientY = sdf(p + step3.yxy) - sdf(p - step3.yxy);
-	float gradientZ = sdf(p + step3.yyx) - sdf(p - step3.yyx);
-
-	return normalize(vec3(gradientX, gradientY, gradientZ)) * .5 + .5;
 }
 
 vec3 raymarch(vec3 origin, vec3 direction) {
